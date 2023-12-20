@@ -7,6 +7,6 @@ class RecipeButton(Button):
         self.parent = parent
         self.recipe_key = recipe_key
 
-        self.config(command=lambda: self.parent.add(recipe_key), text=recipe_key)
+        self.config(command=lambda: self.parent.add_to_cart(recipe_key), text=recipe_key)
 
 

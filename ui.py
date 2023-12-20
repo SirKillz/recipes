@@ -46,12 +46,12 @@ class UI(Tk):
 
         time.sleep(2)
 
-    def add(self, recipe_key):
+    def add_to_cart(self, recipe_key):
         recipe = self.recipe_dict[recipe_key]
         for item in recipe:
             try:
                 self.driver.get(item.url)
-                select_element = WebDriverWait(self.driver, timeout=10).until(EC.presence_of_element_located
+                select_element = WebDriverWait(self.driver, timeout=2).until(EC.presence_of_element_located
                                                                        ((By.XPATH, item.in_cart_xpath)))
                 select = Select(select_element)
                 selected_option = select.first_selected_option
@@ -62,7 +62,7 @@ class UI(Tk):
                 select.select_by_value(str(new_value))
 
             except TimeoutException:
-                add_to_cart = WebDriverWait(self.driver, timeout=10).until(EC.presence_of_element_located
+                add_to_cart = WebDriverWait(self.driver, timeout=2).until(EC.presence_of_element_located
                                                                            ((By.XPATH, item.add_xpath)))
 
                 # Check for in stock or not

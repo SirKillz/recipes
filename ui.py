@@ -51,9 +51,10 @@ class UI(Tk):
 
         recipe_item_list = []
         for item in response[recipe_key]:
-            recipe_item = RecipeItem(name=item['recipeItem'], url=item['url'], sub_url=item['subUrl'])
-            if recipe_item.sub_url == '""':
-                recipe_item.sub_url = ''
+            try:
+                recipe_item = RecipeItem(name=item['recipeItem'], url=item['url'], sub_url=item['subUrl'])
+            except KeyError:
+                recipe_item = RecipeItem(name=item['recipeItem'], url=item['url'], sub_url='')
             recipe_item_list.append(recipe_item)
         return recipe_item_list
 
@@ -91,6 +92,23 @@ class UI(Tk):
                     item_element = self.driver.find_element(By.XPATH, '//*[@id="main-content"]/div[2]/div[1]/div[1]/div[1]/div/div[2]/div[2]/div/div[1]/h1')
                     item_name = item_element.text
                     self.append_stock_report(item_name)
+
+                    if item.sub_url != "":
+                        try:
+                            self.driver.get(item.sub_url)
+                            select_element = WebDriverWait(self.driver, timeout=2).until(EC.presence_of_element_located
+                                                                                         ((By.XPATH, in_cart_xpath)))
+                            select = Select(select_element)
+                            selected_option = select.first_selected_option
+                            value = int(selected_option.get_attribute('value'))
+
+                            new_value = value + 1
+
+                            select.select_by_value(str(new_value))
+                        except TimeoutException:
+                            add_to_cart = WebDriverWait(self.driver, timeout=2).until(EC.presence_of_element_located
+                                                                                      ((By.XPATH, add_xpath)))
+                            add_to_cart.click()
 
                 # If the stock status is NOT "Out of Stock" we are good to simply add to cart
                 else:

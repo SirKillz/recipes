@@ -5,9 +5,10 @@ from selenium.webdriver.support import expected_conditions as EC
 import undetected_chromedriver as uc
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.support.ui import Select
-import requests
 
+import requests
 import time
+from RecipeItem import RecipeItem
 from buttons import RecipeButton
 
 
@@ -48,8 +49,13 @@ class UI(Tk):
         sheets_url = f"https://api.sheety.co/28d41c9e28157106a2c489d2dc97c2ce/meijerRecipes/{recipe_key}"
         response = (requests.get(url=sheets_url)).json()
 
-        url_list = [item['url'] for item in response[recipe_key]]
-        return url_list
+        recipe_item_list = []
+        for item in response[recipe_key]:
+            recipe_item = RecipeItem(name=item['recipeItem'], url=item['url'], sub_url=item['subUrl'])
+            if recipe_item.sub_url == '""':
+                recipe_item.sub_url = ''
+            recipe_item_list.append(recipe_item)
+        return recipe_item_list
 
     def add_to_cart(self, recipe_key):
         recipe = self.sheets_api_pull(recipe_key=recipe_key) # A list of URLs from the Sheets API Pull
@@ -60,9 +66,9 @@ class UI(Tk):
 
         # Loop through all urls in the api pull
         # First check to see if the item is already in our cart
-        for url in recipe:
+        for item in recipe:
             try:
-                self.driver.get(url)
+                self.driver.get(item.url)
                 select_element = WebDriverWait(self.driver, timeout=2).until(EC.presence_of_element_located
                                                                        ((By.XPATH, in_cart_xpath)))
                 select = Select(select_element)

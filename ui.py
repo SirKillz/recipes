@@ -5,9 +5,9 @@ from selenium.webdriver.support import expected_conditions as EC
 import undetected_chromedriver as uc
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.support.ui import Select
+import requests
 
 import time
-from recipe_dict import recipe_dict
 from buttons import RecipeButton
 
 
@@ -17,8 +17,6 @@ class UI(Tk):
         self.stock_report()
         self.driver = uc.Chrome()
         self.login()
-
-        self.recipe_dict = recipe_dict
 
         chili_button = RecipeButton(self, "chili")
         chili_button.pack()
@@ -46,13 +44,27 @@ class UI(Tk):
 
         time.sleep(2)
 
+    def sheets_api_pull(self, recipe_key):
+        sheets_url = f"https://api.sheety.co/28d41c9e28157106a2c489d2dc97c2ce/meijerRecipes/{recipe_key}"
+        response = (requests.get(url=sheets_url)).json()
+
+        url_list = [item['url'] for item in response[recipe_key]]
+        return url_list
+
     def add_to_cart(self, recipe_key):
-        recipe = self.recipe_dict[recipe_key]
-        for item in recipe:
+        recipe = self.sheets_api_pull(recipe_key=recipe_key) # A list of URLs from the Sheets API Pull
+
+        # Statically declare the X-path of items already in cart or ready to add to cart
+        in_cart_xpath = '//*[@id="main-content"]/div[2]/div[1]/div[1]/div[1]/div/div[2]/div[3]/select'
+        add_xpath = '//*[@id="main-content"]/div[2]/div[1]/div[1]/div[1]/div/div[2]/div[3]/button/span'
+
+        # Loop through all urls in the api pull
+        # First check to see if the item is already in our cart
+        for url in recipe:
             try:
-                self.driver.get(item.url)
+                self.driver.get(url)
                 select_element = WebDriverWait(self.driver, timeout=2).until(EC.presence_of_element_located
-                                                                       ((By.XPATH, item.in_cart_xpath)))
+                                                                       ((By.XPATH, in_cart_xpath)))
                 select = Select(select_element)
                 selected_option = select.first_selected_option
                 value = int(selected_option.get_attribute('value'))
@@ -61,11 +73,12 @@ class UI(Tk):
 
                 select.select_by_value(str(new_value))
 
+            # We will get a timeout exception if the item is not in our cart and thus we can proceed to add
             except TimeoutException:
                 add_to_cart = WebDriverWait(self.driver, timeout=2).until(EC.presence_of_element_located
-                                                                           ((By.XPATH, item.add_xpath)))
+                                                                           ((By.XPATH, add_xpath)))
 
-                # Check for in stock or not
+                # First check if the item is in stock or not
                 stock_status = add_to_cart.text
                 if stock_status == "Out of Stock":
                     print("This item is out of stock")
@@ -73,6 +86,7 @@ class UI(Tk):
                     item_name = item_element.text
                     self.append_stock_report(item_name)
 
+                # If the stock status is NOT "Out of Stock" we are good to simply add to cart
                 else:
                     add_to_cart.click()
                     time.sleep(1)

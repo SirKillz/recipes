@@ -19,8 +19,15 @@ class UI(Tk):
         self.driver = uc.Chrome()
         self.login()
 
+        # Button Creation
         chili_button = RecipeButton(self, "chili")
         chili_button.pack()
+
+        chicken_asparagus_button = RecipeButton(self, 'chickenAsparagusPesto')
+        chicken_asparagus_button.pack()
+
+        chicken_wildrice_button = RecipeButton(self, 'chickenWildriceSoup')
+        chicken_wildrice_button.pack()
 
         self.mainloop()
 

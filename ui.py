@@ -58,9 +58,9 @@ class UI(Tk):
 
         recipe_item_list = []
         for item in response[recipe_key]:
-            try:
+            if 'subURL' in response[recipe_key]:
                 recipe_item = RecipeItem(name=item['recipeItem'], url=item['url'], sub_url=item['subUrl'])
-            except KeyError:
+            else:
                 recipe_item = RecipeItem(name=item['recipeItem'], url=item['url'], sub_url='')
             recipe_item_list.append(recipe_item)
         return recipe_item_list
@@ -77,7 +77,7 @@ class UI(Tk):
         for item in recipe:
             try:
                 self.driver.get(item.url)
-                select_element = WebDriverWait(self.driver, timeout=2).until(EC.presence_of_element_located
+                select_element = WebDriverWait(self.driver, timeout=5).until(EC.presence_of_element_located
                                                                        ((By.XPATH, in_cart_xpath)))
                 select = Select(select_element)
                 selected_option = select.first_selected_option
@@ -89,7 +89,7 @@ class UI(Tk):
 
             # We will get a timeout exception if the item is not in our cart and thus we can proceed to add
             except TimeoutException:
-                add_to_cart = WebDriverWait(self.driver, timeout=2).until(EC.presence_of_element_located
+                add_to_cart = WebDriverWait(self.driver, timeout=5).until(EC.presence_of_element_located
                                                                            ((By.XPATH, add_xpath)))
 
                 # First check if the item is in stock or not
@@ -103,7 +103,7 @@ class UI(Tk):
                     if item.sub_url != "":
                         try:
                             self.driver.get(item.sub_url)
-                            select_element = WebDriverWait(self.driver, timeout=2).until(EC.presence_of_element_located
+                            select_element = WebDriverWait(self.driver, timeout=5).until(EC.presence_of_element_located
                                                                                          ((By.XPATH, in_cart_xpath)))
                             select = Select(select_element)
                             selected_option = select.first_selected_option
@@ -113,7 +113,7 @@ class UI(Tk):
 
                             select.select_by_value(str(new_value))
                         except TimeoutException:
-                            add_to_cart = WebDriverWait(self.driver, timeout=2).until(EC.presence_of_element_located
+                            add_to_cart = WebDriverWait(self.driver, timeout=5).until(EC.presence_of_element_located
                                                                                       ((By.XPATH, add_xpath)))
                             add_to_cart.click()
 

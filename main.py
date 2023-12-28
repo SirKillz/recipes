@@ -1,3 +1,5 @@
 from ui import UI
+from driver import BrowserDriver
 
-ui = UI()
+driver = BrowserDriver()
+ui = UI(driver)

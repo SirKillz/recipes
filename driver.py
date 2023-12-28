@@ -6,7 +6,12 @@ from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.support.ui import Select
 import time
 from sheets_api import api_pull
+from dotenv import load_dotenv
+import os
 
+load_dotenv('vars.env')
+username = os.getenv('meijer_username')
+password = os.getenv('meijer_password')
 
 class BrowserDriver(uc.Chrome):
     def __init__(self, **kw):
@@ -18,15 +23,14 @@ class BrowserDriver(uc.Chrome):
 
         email = WebDriverWait(self, 10).until(
             EC.presence_of_element_located((By.XPATH, '//*[@id="input27"]')))
-        email.send_keys("sirkillz1198@gmail.com")
+        email.send_keys(username)
 
         next_button = self.find_element(By.XPATH, '//*[@id="form19"]/div[2]/input')
         next_button.click()
 
-        password_entry = "TCqDHnxn9$@bxcX"
         password_input = WebDriverWait(self, timeout=10).until(
             EC.presence_of_element_located((By.XPATH, '//*[@id="input61"]')))
-        password_input.send_keys(password_entry)
+        password_input.send_keys(password)
 
         verify_button = self.find_element(By.XPATH, '//*[@id="form53"]/div[2]/input')
         verify_button.click()

@@ -23,17 +23,17 @@ class BrowserDriver(uc.Chrome):
     def login(self):
         self.get('https://id.meijer.com/oauth2/default/v1/authorize?response_type=code&client_id=0oa22cbewuCICOsKz697&scope=openid+offline_access&redirect_uri=https%3A%2F%2Fwww.meijer.com%2Fbin%2Fmeijer%2Fsignin%2Fv3%2Fcallback&state=https%3A%2F%2Fwww.meijer.com%2F')
         email = WebDriverWait(self, 10).until(
-            EC.presence_of_element_located((By.XPATH, '//*[@id="input27"]')))
+            EC.presence_of_element_located((By.XPATH, '//*[@id="identifier"]')))
         email.send_keys(username)
 
-        next_button = self.find_element(By.XPATH, '//*[@id="form19"]/div[2]/input')
+        next_button = self.find_element(By.XPATH, '//*[@id="okta-sign-in"]/div/div/div/div[2]/form/div/div[4]/button')
         next_button.click()
 
         password_input = WebDriverWait(self, timeout=10).until(
-            EC.presence_of_element_located((By.XPATH, '//*[@id="input61"]')))
+            EC.presence_of_element_located((By.XPATH, '//*[@id="credentials.passcode"]')))
         password_input.send_keys(password)
 
-        verify_button = self.find_element(By.XPATH, '//*[@id="form53"]/div[2]/input')
+        verify_button = self.find_element(By.XPATH, '//*[@id="okta-sign-in"]/div/div/div/div[2]/form/div/div[5]/button')
         verify_button.click()
 
         time.sleep(2)
